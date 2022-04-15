@@ -419,3 +419,23 @@ exec sp_updateBookPrice
  execute sp_customerDetailsMailWise
  @email_address='shweta@gmail.com'
 
+ ---cursor---
+
+ select *from Books_table;
+ 
+DECLARE @book_id int  
+DECLARE @book_name varchar(80)  
+DECLARE @price int 
+DECLARE @registered_date datetime
+  
+DECLARE bookDetails_CURSOR CURSOR  
+FOR  SELECT   book_id,book_name,price,registered_date FROM Books_table
+OPEN  bookDetails_CURSOR 
+FETCH NEXT FROM bookDetails_CURSOR INTO  @book_id,@book_name,@price,@registered_date
+WHILE @@FETCH_STATUS = 0  
+BEGIN  
+PRINT  'BOOK_ID: ' +CAST(@book_id AS varchar) +  '  BOOK_NAME:'+@book_name +'  BOOK_PRICE:'+CAST(@price AS varchar)  +  ' BOOK_registeredDate:' +CAST(@registered_date AS varchar)  
+FETCH NEXT FROM bookDetails_CURSOR INTO  @book_id,@book_name,@price,@registered_date 
+END  
+CLOSE bookDetails_CURSOR  
+DEALLOCATE bookDetails_CURSOR
