@@ -439,3 +439,62 @@ FETCH NEXT FROM bookDetails_CURSOR INTO  @book_id,@book_name,@price,@registered_
 END  
 CLOSE bookDetails_CURSOR  
 DEALLOCATE bookDetails_CURSOR
+
+--Function--
+CREATE FUNCTION price(@name as varchar(50))
+ RETURNS decimal
+  BEGIN
+    DECLARE @bookPrice int;
+	select @bookPrice = price from Books_table
+	where book_name = @name
+
+	RETURN @bookPrice
+  END
+
+  select dbo.price('Think and Grow Rich') as 'Book Price'
+ 
+  create function getAllBookDetails(@id as int)
+  RETURNS @Details TABLE (
+   book_name varchar(250),
+   price decimal,
+   quantity int,
+   registeredDate date
+  )
+  AS
+  BEGIN
+    INSERT INTO @Details
+	select book_name,price,quantity,registered_date  from books_table where book_id= @id
+	RETURN
+   END
+
+SELECT * FROM getAllBookDetails (8)
+
+--Transaction----
+select * from Books_table
+BEGIN TRANSACTION Book_Transaction
+  BEGIN TRY
+    	insert into Books_table (book_name,author_name,price,rating,quantity,book_image,registered_date)
+		Values('Belive in yourself','Napoleon Hill',299,4.5,30,'https://images-eu.ssl-images-amazon.com/images/I/41o5PJi5v3L._SY264_BO1,204,203,200_QL40_FMwebp_.jpg','2014-10-20')
+
+      UPDATE Books_table
+      SET author_name = 'Joseph Murphy' WHERE book_name ='Belive in yourself'
+	  Select @@TRANCOUNT As TransactionCount
+      COMMIT TRANSACTION Book_Transaction
+
+	  DELETE FROM Books_table WHERE book_id=10;
+	
+  END TRY
+  BEGIN CATCH
+      ROLLBACK TRANSACTION Book_Transaction
+  END CATCH  
+  Select @@TRANCOUNT As TransactionCount
+------------ROLLBACK TRANSACTION-------
+select *from Books_table;
+
+BEGIN TRANSACTION
+UPDATE Books_table SET price =550 WHERE book_id = 11
+SAVE TRANSACTION DeletePoint
+DELETE FROM Books_table WHERE book_id = 12
+DELETE FROM Books_table WHERE book_id = 9
+ROLLBACK TRANSACTION DeletePoint
+COMMIT
