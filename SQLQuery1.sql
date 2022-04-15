@@ -498,3 +498,19 @@ DELETE FROM Books_table WHERE book_id = 12
 DELETE FROM Books_table WHERE book_id = 9
 ROLLBACK TRANSACTION DeletePoint
 COMMIT
+
+--trigger--
+SELECT * FROM order_table
+CREATE TRIGGER tr_message
+ON order_table
+AFTER INSERT
+AS
+    BEGIN
+	   PRINT'Your order has been placed...! '
+    END
+
+insert into order_table(order_deliveredDate,book_id,customer_id)values(DATEADD(DAY,7,SYSDATETIME()),8,14)
+	
+
+
+
